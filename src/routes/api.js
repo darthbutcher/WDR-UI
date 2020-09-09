@@ -157,9 +157,38 @@ router.post('/pokemon/new', async (req, res) => {
         max_iv,
         min_lvl,
         max_lvl,
-        gender
+        gender,
+        geotype
     } = req.body;
     const user_id = defaultData.user_id;
+    const split = pokemon.split(',');
+    for (let i = 0; i < split.length; i++) {
+        const pokemonId = split[i];
+        const exists = await Pokemon.getByPokemon(guild_id, user_id, pokemonId, form);
+        if (exists) {
+            // Already exists
+            // TODO: Update already existing
+            console.log('Already exists');
+        } else {
+            const pkmn = new Pokemon(
+                guild_id,
+                user_id,
+                pokemonId,
+                form || 0,
+                min_iv || 0,
+                max_iv || 100,
+                min_lvl || 0,
+                max_lvl || 35,
+                gender || 0,
+                geotype
+            );
+            const result = await pkmn.create();
+                if (result) {
+                // Success
+                console.log('Pokemon subscription for Pokemon', pokemonId, 'created successfully.');
+                }
+        }
+    }
     res.redirect('/pokemon');
 });
 

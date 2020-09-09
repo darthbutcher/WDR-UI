@@ -5,28 +5,23 @@ const MySQLConnector = require('../services/mysql.js');
 const db = new MySQLConnector(config.db.brock);
 
 class Pokemon {
-    constructor( guildId, userId, areas, location, pokemonId, form, maxCP, minIV, maxIV, minLvl, maxLvl, size, gender, generation, geotype) {
+    constructor(guildId, userId, pokemonId, form, minIV, maxIV, minLvl, maxLvl, gender, geotype) {
         this.guildId = guildId;
         this.userId = userId;
-        this.areas = areas;
-        this.location = location;
         this.pokemonId = pokemonId;
         this.form = form;
-        this.maxCP = maxCP;
         this.minIV = minIV;
         this.maxIV = maxIV;
         this.minLvl = minLvl;
         this.maxLvl = maxLvl;
-        this.size = size;
         this.gender = gender;
-        this.generation = generation;
         this.geotype = geotype;
     }
 
     async create() {
         const sql = `
-        INSERT INTO wdr_subscriptions (sub_type, guild_id, user_id, pokemon_id, form, min_iv, max_iv, min_lvl, max_lvl, gender)
-        VALUES (pokemon,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO wdr_subscriptions (sub_type, guild_id, user_id, pokemon_id, form, min_iv, max_iv, min_lvl, max_lvl, gender, geotype)
+        VALUES ('pokemon', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'city')
         `;
         const args = [
             this.guildId, this.userId,
@@ -69,13 +64,13 @@ class Pokemon {
         return null;
     }
 
-    static async getByPokemon(guildId, userId, pokemonId, form, city) {
+    static async getByPokemon(guildId, userId, pokemonId, form) {
         const sql = `
         SELECT guild_id, user_id, pokemon_id, form, min_cp, min_iv, max_iv, min_lvl, max_lvl, gender, geotype
         FROM wdr_subscriptions
-        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND form = ? AND geotype = ? AND sub_type = 'pokemon'
+        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND form = ? AND sub_type = 'pokemon'
         `;
-        const args = [guildId, userId, pokemonId, form, geotype];
+        const args = [guildId, userId, pokemonId, form];
         const results = await db.query(sql, args);
         if (results && results.length > 0) {
             const result = results[0];
