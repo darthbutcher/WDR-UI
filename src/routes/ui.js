@@ -34,9 +34,17 @@ router.get('/logout', (req, res) => {
 
 
 // Pokemon routes
-router.get('/pokemon', (req, res) => {
+router.get('/pokemon', async (req, res) => {
     const data = defaultData;
     data.servers = validateRoles(req, res);
+    const pokemon = await Pokemon.getById(id);
+    data.min_iv = pokemon.minIV;
+    data.max_iv = pokemon.maxIV;
+    data.min_lvl = pokemon.minLvl;
+    data.max_lvl = pokemon.maxLvl;
+    data.genders.forEach(gender => {
+        data.selected = gender.id === pokemon.gender;
+    });
     res.render('pokemon', data);
 });
 
@@ -60,6 +68,8 @@ router.get('/pokemon/edit/:id', async (req, res) => {
     });
     data.iv = pokemon.minIV;
     data.iv_list = (pokemon.ivList || []).join('\n');
+    data.min_iv = pokemon.minIV;
+    data.max_iv = pokemon.maxIV;
     data.min_lvl = pokemon.minLvl;
     data.max_lvl = pokemon.maxLvl;
     data.genders.forEach(gender => {

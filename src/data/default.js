@@ -8,9 +8,9 @@ data.style = config.style == 'dark' ? 'dark' : '';
 data.copyright_footer = config.showFooter;
 data.servers = config.discord.guilds;
 data.genders = [
-    { 'id': '*', 'name': 'All' },
-    { 'id': 'm', 'name': 'Male' },
-    { 'id': 'f', 'name': 'Female', }
+    { 'id': '0', 'name': 'All' },
+    { 'id': '1', 'name': 'Male' },
+    { 'id': '2', 'name': 'Female', }
 ];
 data.leagues = [
     { 'id': 'great', 'name': 'Great' },

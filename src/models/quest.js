@@ -5,8 +5,7 @@ const MySQLConnector = require('../services/mysql.js');
 const db = new MySQLConnector(config.db.brock);
 
 class Quest {
-    constructor(subscriptionId, guildId, userId, reward, city) {
-        this.subscriptionId = subscriptionId;
+    constructor(guildId, userId, reward, city) {
         this.guildId = guildId;
         this.userId = userId;
         this.reward = reward;
@@ -14,11 +13,10 @@ class Quest {
     }
     async create() {
         const sql = `
-        INSERT INTO quests (subscription_id, guild_id, user_id, reward, city)
+        INSERT INTO wdr_subscriptions (guild_id, user_id, reward, city)
         VALUES (?, ?, ?, ?, ?)
         `;
         const args = [
-            this.subscriptionId,
             this.guildId, this.userId,
             this.reward, this.city
         ];
@@ -28,8 +26,8 @@ class Quest {
 
     static async getAll(guildId, userId) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward, city
-        FROM quests
+        SELECT guild_id, user_id, reward, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];
@@ -38,7 +36,7 @@ class Quest {
             const list = [];
             results.forEach(result => {
                 list.push(new Quest(
-                    result.subscription_id,
+                    
                     result.guild_id,
                     result.user_id,
                     result.reward,
@@ -52,8 +50,8 @@ class Quest {
 
     static async getById(id) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward, city
-        FROM quests
+        SELECT guild_id, user_id, reward, city
+        FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -61,7 +59,7 @@ class Quest {
         if (results && results.length > 0) {
             const result = results[0];
             return new Quest(
-                result.subscription_id,
+                
                 result.guild_id,
                 result.user_id,
                 result.reward,
@@ -73,8 +71,8 @@ class Quest {
     
     static async getByReward(guildId, userId, reward, city) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward, city
-        FROM quests
+        SELECT guild_id, user_id, reward, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND reward = ? AND city = ?
         LIMIT 1
         `;
@@ -83,7 +81,7 @@ class Quest {
         if (results && results.length > 0) {
             let result = results[0];
             return new Quest(
-                result.subscription_id,
+                
                 result.guild_id,
                 result.user_id,
                 result.reward,
@@ -95,7 +93,7 @@ class Quest {
 
     static async delete(guildId, userId, reward, city) {
         const sql = `
-        DELETE FROM quests
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND reward = ? AND city = ?
         `;
         const args = [guildId, userId, reward, city];
@@ -105,7 +103,7 @@ class Quest {
 
     static async deleteById(id) {
         const sql = `
-        DELETE FROM quests
+        DELETE FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -115,7 +113,7 @@ class Quest {
 
     static async deleteAll(guildId, userId) {
         const sql = `
-        DELETE FROM quests
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];

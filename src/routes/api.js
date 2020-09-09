@@ -153,62 +153,13 @@ router.post('/pokemon/new', async (req, res) => {
         guild_id,
         pokemon,
         form,
-        iv,
-        iv_list,
+        min_iv,
+        max_iv,
         min_lvl,
         max_lvl,
-        gender,
-        city
+        gender
     } = req.body;
     const user_id = defaultData.user_id;
-    let cities;
-    if (city === 'all') {
-        config.discord.guilds.map(x => {
-            if (x.id == guild_id) {
-                cities = x.geofences;
-            }
-        });
-    } else {
-        if (!Array.isArray(city)) {
-            cities = [city];
-        }
-    }
-    if (cities) {
-        const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
-        for (let i = 0; i < cities.length; i++) {
-            const area = cities[i];
-            const split = pokemon.split(',');
-            for (let i = 0; i < split.length; i++) {
-                const pokemonId = split[i];
-                const exists = await Pokemon.getByPokemon(guild_id, user_id, pokemonId, form, area);
-                if (exists) {
-                    // Already exists
-                    // TODO: Update already existing
-                    console.log('Already exists');
-                } else {
-                    const pkmn = new Pokemon(
-                        subscriptionId,
-                        guild_id,
-                        user_id,
-                        pokemonId,
-                        form,
-                        0,
-                        isUltraRarePokemon(pokemonId) ? 0 : iv || 0,
-                        iv_list ? iv_list.split('\n') : [],
-                        min_lvl || 0,
-                        max_lvl || 35,
-                        gender || '*',
-                        area
-                    );
-                    const result = await pkmn.create();
-                    if (result) {
-                        // Success
-                        console.log('Pokemon subscription for Pokemon', pokemonId, 'created successfully.');
-                    }
-                }
-            }
-        }
-    }
     res.redirect('/pokemon');
 });
 
@@ -218,8 +169,8 @@ router.post('/pokemon/edit/:id', async (req, res) => {
         guild_id,
         pokemon,
         form,
-        iv,
-        iv_list,
+        min_iv,
+        max_iv,
         min_lvl,
         max_lvl,
         gender,
@@ -238,9 +189,11 @@ router.post('/pokemon/edit/:id', async (req, res) => {
             0,
             isUltraRarePokemon(pokemon) ? 0 : iv || 0,
             iv_list ? iv_list.split('\n') : [],
+            min_iv || 0,
+            max_iv || 100,
             min_lvl || 0,
             max_lvl || 35,
-            gender || '*',
+            gender || 0,
             city
         );
         if (result) {
@@ -294,11 +247,6 @@ router.post('/pvp/new', async (req, res) => {
         city
     } = req.body;
     const user_id = defaultData.user_id;
-    const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
-    if (!subscriptionId) {
-        console.error('Failed to get user subscription ID for GuildId:', guild_id, 'and UserId:', user_id);
-        return;
-    }
     let cities;
     if (city === 'all') {
         config.discord.guilds.map(x => {
@@ -321,7 +269,7 @@ router.post('/pvp/new', async (req, res) => {
                 if (exists) {
                     // Already exists
                 } else {
-                    const pvp = new PVP(subscriptionId, guild_id, user_id, pokemonId, form, league, min_rank || 25, min_percent || 98, area);
+                    const pvp = new PVP(guild_id, user_id, pokemonId, form, league, min_rank || 25, min_percent || 98, area);
                     const result = await pvp.create();
                     if (result) {
                         // Success
@@ -392,7 +340,6 @@ router.post('/pvp/delete_all', async (req, res) => {
 router.post('/raids/new', async (req, res) => {
     const { guild_id, pokemon, form, city } = req.body;
     const user_id = defaultData.user_id;
-    const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
     let cities;
     if (city === 'all') {
         config.discord.guilds.map(x => {
@@ -415,7 +362,7 @@ router.post('/raids/new', async (req, res) => {
                 if (exists) {
                     // Already exists
                 } else {
-                    const raid = new Raid(subscriptionId, guild_id, user_id, pokemonId, form, area);
+                    const raid = new Raid(guild_id, user_id, pokemonId, form, area);
                     const result = await raid.create();
                     if (result) {
                         // Success
@@ -478,12 +425,11 @@ router.post('/raids/delete_all', async (req, res) => {
 router.post('/gyms/new', async (req, res) => {
     const { guild_id, name } = req.body;
     const user_id = defaultData.user_id;
-    const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
     const exists = await Gym.getByName(guild_id, user_id, name);
     if (exists) {
         // Already exists
     } else {
-        const gym = new Gym(subscriptionId, guild_id, user_id, name);
+        const gym = new Gym(guild_id, user_id, name);
         const result = await gym.create();
         if (result) {
             // Success
@@ -528,7 +474,6 @@ router.post('/gyms/delete_all', async (req, res) => {
 router.post('/quests/new', async (req, res) => {
     const { guild_id, reward, city } = req.body;
     const user_id = defaultData.user_id;
-    const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
     let cities;
     if (city === 'all') {
         config.discord.guilds.map(x => {
@@ -548,7 +493,7 @@ router.post('/quests/new', async (req, res) => {
             if (exists) {
                 // Already exists
             } else {
-                const quest = new Quest(subscriptionId, guild_id, user_id, reward, area);
+                const quest = new Quest(guild_id, user_id, reward, area);
                 const result = await quest.create();
                 if (result) {
                     // Success
@@ -610,7 +555,6 @@ router.post('/quests/delete_all', async (req, res) => {
 router.post('/invasions/new', async (req, res) => {
     const { guild_id, pokemon, city } = req.body;
     const user_id = defaultData.user_id;
-    const subscriptionId = await subscriptions.getUserSubscriptionId(guild_id, user_id);
     let cities;
     if (city === 'all') {
         config.discord.guilds.map(x => {
@@ -634,7 +578,7 @@ router.post('/invasions/new', async (req, res) => {
                     // Already exists
                     console.log('Invasion subscription with reward', pokemonId, 'already exists.');
                 } else {
-                    const invasion = new Invasion(subscriptionId, guild_id, user_id, pokemonId, area);
+                    const invasion = new Invasion(guild_id, user_id, pokemonId, area);
                     const result = await invasion.create();
                     if (result) {
                         // Success

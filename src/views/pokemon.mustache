@@ -24,15 +24,14 @@
                     <table id="table" class="table table-{{style}} table-sm table-striped table-bordered table-hover dt-responsive nowrap" style="position: center; width:100%">
                         <thead class="thead-dark">
                             <tr>
-                                <th class="all">{{ID}}</th>
                                 <th class="all">{{Pokemon}}</th>
-                                <th class="min-desktop">{{Form}}</th>
-                                <th class="min-desktop">{{CP}}</th>
-                                <th class="all">{{IV}}</th>
-                                <th class="all">{{IV List}}</th>
+                                <th class="min-desktop">{{Areas}}</th>
+                                <th class="min-desktop">{{Location}}</th>
+                                <th class="all">{{Minimum IV}}</th>
+                                <th class="all">{{Maximum IV}}</th>
                                 <th class="min-desktop">{{Level}}</th>
                                 <th class="min-desktop">{{Gender}}</th>
-                                <th class="min-desktop">{{City}}</th>
+                                <th class="min-desktop">{{Area Type}}</th>
                                 <th class="all" width="5%"></th>
                             </tr>
                         </thead>
@@ -47,7 +46,6 @@
                     <table id="table-pvp" class="table table-{{style}} table-sm table-striped table-bordered table-hover dt-responsive nowrap" style="position: center; width:100%">
                         <thead class="thead-dark">
                             <tr>
-                                <th class="all">{{ID}}</th>
                                 <th class="all">{{Pokemon}}</th>
                                 <th class="min-desktop">{{Form}}</th>
                                 <th class="all">{{League}}</th>
@@ -118,15 +116,14 @@
         "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
         "pageLength": 100,
         "columns": [
-            { "data": "pokemon_id" },
             { "data": "name" },
-            { "data": "form" },
-            { "data": "cp" },
-            { "data": "iv" },
-            { "data": "iv_list" },
+            { "data": "areas" },
+            { "data": "location" },
+            { "data": "min_iv" },
+            { "data": "max_iv" },
             { "data": "lvl" },
             { "data": "gender_name" },
-            { "data": "city" },
+            { "data": "geotype" },
             { "data": "buttons" }
         ],
         "info": true,

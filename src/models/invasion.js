@@ -5,8 +5,7 @@ const MySQLConnector = require('../services/mysql.js');
 const db = new MySQLConnector(config.db.brock);
 
 class Invasion {
-    constructor(subscriptionId, guildId, userId, rewardPokemonId, city) {
-        this.subscriptionId = subscriptionId;
+    constructor(guildId, userId, rewardPokemonId, city) {
         this.guildId = guildId;
         this.userId = userId;
         this.rewardPokemonId = rewardPokemonId;
@@ -15,11 +14,10 @@ class Invasion {
 
     async create() {
         const sql = `
-        INSERT INTO invasions (subscription_id, guild_id, user_id, reward_pokemon_id, city)
+        INSERT INTO wdr_subscriptions (guild_id, user_id, reward_pokemon_id, city)
         VALUES (?, ?, ?, ?, ?)
         `;
         const args = [
-            this.subscriptionId,
             this.guildId, this.userId,
             this.rewardPokemonId, this.city
         ];
@@ -29,8 +27,8 @@ class Invasion {
 
     static async getAll(guildId, userId) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward_pokemon_id, city
-        FROM invasions
+        SELECT guild_id, user_id, reward_pokemon_id, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];
@@ -39,7 +37,7 @@ class Invasion {
             const list = [];
             results.forEach(result => {
                 list.push(new Invasion(
-                    result.subscription_id,
+                    
                     result.guild_id,
                     result.user_id,
                     result.reward_pokemon_id,
@@ -53,8 +51,8 @@ class Invasion {
 
     static async getById(id) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward_pokemon_id, city
-        FROM invasions
+        SELECT guild_id, user_id, reward_pokemon_id, city
+        FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -62,7 +60,7 @@ class Invasion {
         if (results && results.length > 0) {
             const result = results[0];
             return new Invasion(
-                result.subscription_id,
+                
                 result.guild_id,
                 result.user_id,
                 result.reward_pokemon_id,
@@ -74,8 +72,8 @@ class Invasion {
 
     static async getByReward(guildId, userId, reward, city) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, reward_pokemon_id, city
-        FROM invasions
+        SELECT guild_id, user_id, reward_pokemon_id, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND reward_pokemon_id = ? AND city = ?
         LIMIT 1
         `;
@@ -84,7 +82,7 @@ class Invasion {
         if (results && results.length > 0) {
             const result = results[0];
             return new Invasion(
-                result.subscription_id,
+                
                 result.guild_id,
                 result.user_id,
                 result.reward_pokemon_id,
@@ -96,7 +94,7 @@ class Invasion {
     
     static async delete(guildId, userId, rewardPokemonId, city) {
         const sql = `
-        DELETE FROM invasions
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND reward_pokemon_id = ? AND city = ?
         `;
         const args = [guildId, userId, rewardPokemonId, city];
@@ -106,7 +104,7 @@ class Invasion {
 
     static async deleteById(id) {
         const sql = `
-        DELETE FROM invasions
+        DELETE FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -116,7 +114,7 @@ class Invasion {
 
     static async deleteAll(guildId, userId) {
         const sql = `
-        DELETE FROM invasions
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];

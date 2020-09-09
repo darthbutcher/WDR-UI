@@ -4,8 +4,7 @@ const MySQLConnector = require('../services/mysql.js');
 const db = new MySQLConnector(config.db.brock);
 
 class Raid {
-    constructor(subscriptionId, guildId, userId, pokemonId, form, city) {
-        this.subscriptionId = subscriptionId;
+    constructor(guildId, userId, pokemonId, form, city) {
         this.guildId = guildId;
         this.userId = userId;
         this.pokemonId = pokemonId;
@@ -15,11 +14,10 @@ class Raid {
 
     async create() {
         const sql = `
-        INSERT INTO raids (subscription_id, guild_id, user_id, pokemon_id, form, city)
+        INSERT INTO wdr_subscriptions (guild_id, user_id, pokemon_id, form, city)
         VALUES (?, ?, ?, ?, ?, ?)
         `;
         const args = [
-            this.subscriptionId,
             this.guildId, this.userId,
             this.pokemonId, this.form,
             this.city
@@ -30,8 +28,8 @@ class Raid {
 
     static async getAll(guildId, userId) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, pokemon_id, form, city
-        FROM raids
+        SELECT guild_id, user_id, pokemon_id, form, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];
@@ -40,7 +38,6 @@ class Raid {
             const list = [];
             results.forEach(result => {
                 list.push(new Raid(
-                    result.subscription_id,
                     result.guild_id,
                     result.user_id,
                     result.pokemonId,
@@ -55,8 +52,8 @@ class Raid {
 
     static async getById(id) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, pokemon_id, form, city
-        FROM raids
+        SELECT guild_id, user_id, pokemon_id, form, city
+        FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -64,7 +61,6 @@ class Raid {
         if (results && results.length > 0) {
             const result = results[0];
             return new Raid(
-                result.subscription_id,
                 result.guild_id,
                 result.user_id,
                 result.pokemon_id,
@@ -77,8 +73,8 @@ class Raid {
 
     static async getByPokemon(guildId, userId, pokemonId, form, city) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, pokemon_id, form, city
-        FROM raids
+        SELECT guild_id, user_id, pokemon_id, form, city
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND form = ? AND city = ?
         LIMIT 1
         `;
@@ -87,7 +83,6 @@ class Raid {
         if (results && results.length > 0) {
             let result = results[0];
             return new Raid(
-                result.subscription_id,
                 result.guild_id,
                 result.user_id,
                 result.pokemonId,
@@ -100,7 +95,7 @@ class Raid {
 
     static async delete(guildId, userId, pokemonId, form, city) {
         const sql = `
-        DELETE FROM raids
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND form = ? AND city = ?
         `;
         const args = [guildId, userId, pokemonId, form, city];
@@ -110,7 +105,7 @@ class Raid {
 
     static async deleteById(id) {
         const sql = `
-        DELETE FROM raids
+        DELETE FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -120,7 +115,7 @@ class Raid {
     
     static async deleteAll(guildId, userId) {
         const sql = `
-        DELETE FROM raids
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];

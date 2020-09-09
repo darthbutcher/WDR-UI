@@ -7,23 +7,9 @@ const locale = require('../services/locale.js');
 
 // TODO: Move to model classes
 
-const getUserSubscriptionId = async (guildId, userId) => {
-    const sql = `
-    SELECT id
-    FROM subscriptions
-    WHERE guild_id = ? AND user_id = ?
-    `;
-    const args = [guildId, userId];
-    const results = await db.query(sql, args);
-    if (results && results.length > 0) {
-        return results[0].id;
-    }
-    return createUserSubscription(guildId, userId);
-};
-
 const createUserSubscription = async (guildId, userId) => {
     const sql = `
-    INSERT IGNORE INTO subscriptions (guild_id, user_id, enabled, distance, latitude, longitude, icon_style)
+    INSERT IGNORE INTO wdr_subscriptions (guild_id, user_id, status)
     VALUES (?, ?, 1, 0, 0, 0, 'Default')
     `;
     const args = [guildId, userId];
@@ -39,36 +25,36 @@ const getUserSubscriptionStats = async (guildId, userId) => {
     const sql = `
     SELECT
         (
-            SELECT COUNT(id)
-            FROM   pokemon
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='pokemon'
         ) AS pokemon,
         (
-            SELECT COUNT(id)
-            FROM   pvp
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='pvp'
         ) AS pvp,
         (
-            SELECT COUNT(id)
-            FROM   raids
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='raid'
         ) AS raids,
         (
-            SELECT COUNT(id)
-            FROM   gyms
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='raid'
         ) AS gyms,
         (
-            SELECT COUNT(id)
-            FROM   quests
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='quest'
         ) AS quests,
         (
-            SELECT COUNT(id)
-            FROM   invasions
-            WHERE guild_id = ? AND user_id = ?
+            SELECT COUNT(*)
+            FROM   wdr_subscriptions
+            WHERE guild_id = ? AND user_id = ? AND sub_type='invasion'
         ) AS invasions
-    FROM subscriptions
+    FROM wdr_subscriptions
     LIMIT 1;
     `;
     const args = [
@@ -88,17 +74,16 @@ const getUserSubscriptionStats = async (guildId, userId) => {
 
 const getPokemonSubscriptions = async (guildId, userId) => {
     const sql = `
-    SELECT id, guild_id, user_id, pokemon_id, form, min_cp, min_iv, iv_list, min_lvl, max_lvl, gender, city
-    FROM pokemon
-    WHERE guild_id = ? AND user_id = ?
+    SELECT guild_id, user_id, pokemon_id, form, areas, location, min_cp, min_iv, max_iv, min_lvl, max_lvl, gender, geotype
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='pokemon'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
     if (results) {
         results.forEach(result => {
-            result.name = locale.getPokemonName(result.pokemon_id);
+            result.name = locale.getPokemonName(result.pokemon_id) || 'All';
             result.cp = `${result.min_cp}-4096`;
-            result.iv = result.min_iv;
             result.iv_list = JSON.parse(result.iv_list || '[]');
             result.lvl = `${result.min_lvl}-${result.max_lvl}`;
             //result.city = result.city;
@@ -109,9 +94,9 @@ const getPokemonSubscriptions = async (guildId, userId) => {
 
 const getPvpSubscriptions = async (guildId, userId) => {
     const sql = `
-    SELECT id, guild_id, user_id, pokemon_id, form, league, min_rank, min_percent, city
-    FROM pvp
-    WHERE guild_id = ? AND user_id = ?
+    SELECT guild_id, user_id, pokemon_id, form, league, min_rank, geotype
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='pvp'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
@@ -128,8 +113,8 @@ const getPvpSubscriptions = async (guildId, userId) => {
 const getRaidSubscriptions = async (guildId, userId) => {
     const sql = `
     SELECT id, guild_id, user_id, pokemon_id, form, city
-    FROM raids
-    WHERE guild_id = ? AND user_id = ?
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='raid'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
@@ -144,8 +129,8 @@ const getRaidSubscriptions = async (guildId, userId) => {
 const getGymSubscriptions = async (guildId, userId) => {
     const sql = `
     SELECT id, guild_id, user_id, name
-    FROM gyms
-    WHERE guild_id = ? AND user_id = ?
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='gym'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
@@ -155,8 +140,8 @@ const getGymSubscriptions = async (guildId, userId) => {
 const getQuestSubscriptions = async (guildId, userId) => {
     const sql = `
     SELECT id, guild_id, user_id, reward, city
-    FROM quests
-    WHERE guild_id = ? AND user_id = ?
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='quest'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
@@ -166,8 +151,8 @@ const getQuestSubscriptions = async (guildId, userId) => {
 const getInvasionSubscriptions = async (guildId, userId) => {
     const sql = `
     SELECT id, guild_id, user_id, reward_pokemon_id, city
-    FROM invasions
-    WHERE guild_id = ? AND user_id = ?
+    FROM wdr_subscriptions
+    WHERE guild_id = ? AND user_id = ? AND sub_type='invasion'
     `;
     const args = [guildId, userId];
     const results = await db.query(sql, args);
@@ -181,8 +166,8 @@ const getInvasionSubscriptions = async (guildId, userId) => {
 
 const getSubscriptionSettings = async (guildId, userId) => {
     const sql = `
-    SELECT enabled, distance, latitude, longitude, icon_style
-    FROM subscriptions
+    SELECT status
+    FROM wdr_subscriptions
     WHERE guild_id = ? AND user_id = ?
     `;
     const args = [guildId, userId];
@@ -193,27 +178,20 @@ const getSubscriptionSettings = async (guildId, userId) => {
     return results;
 };
 
-const setSubscriptionSettings = async (guildId, userId, enabled, distance, latitude, longitude, icon_style) => {
+const setSubscriptionSettings = async (guildId, userId, status) => {
     const sql = `
-    UPDATE subscriptions
-    SET enabled = ?, distance = ?, latitude = ?, longitude = ?, icon_style = ?
+    UPDATE wdr_subscriptions
+    SET status = ?
     WHERE guild_id = ? AND user_id = ?
     `;
     const args = [
-        enabled,
-        distance,
-        latitude,
-        longitude,
-        icon_style,
-        guildId,
-        userId
+        status
     ];
     const results = await db.query(sql, args);
     return results.affectedRows > 0;
 };
 
 module.exports = {
-    getUserSubscriptionId,
     createUserSubscription,
     getUserSubscriptionStats,
     getPokemonSubscriptions,

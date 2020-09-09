@@ -5,8 +5,7 @@ const MySQLConnector = require('../services/mysql.js');
 const db = new MySQLConnector(config.db.brock);
 
 class Gym {
-    constructor(subscriptionId, guildId, userId, name) {
-        this.subscriptionId = subscriptionId;
+    constructor(guildId, userId, name) {
         this.guildId = guildId;
         this.userId = userId;
         this.name = name;
@@ -14,11 +13,10 @@ class Gym {
 
     async create() {
         const sql = `
-        INSERT INTO gyms (subscription_id, guild_id, user_id, name)
+        INSERT INTO gyms (guild_id, user_id, name)
         VALUES (?, ?, ?, ?)
         `;
         const args = [
-            this.subscriptionId,
             this.guildId, this.userId,
             this.name
         ];
@@ -28,8 +26,8 @@ class Gym {
 
     static async getAll(guildId, userId) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, name
-        FROM gyms
+        SELECT guild_id, user_id, name
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];
@@ -38,7 +36,6 @@ class Gym {
             const list = [];
             results.forEach(result => {
                 list.push(new Gym(
-                    result.subscription_id,
                     result.guild_id,
                     result.user_id,
                     result.name
@@ -51,16 +48,15 @@ class Gym {
 
     static async getByName(guildId, userId, name) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, name
-        FROM gyms
+        SELECT guild_id, user_id, name
+        FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND name = ?
         `;
         const args = [guildId, userId, name];
         const results = await db.query(sql, args);
         if (results && results.length > 0) {
             const result = results[0];
-            return new Gym(
-                result.subscription_id,
+            return new Gym(          
                 result.guild_id,
                 result.user_id,
                 result.name
@@ -71,8 +67,8 @@ class Gym {
     
     static async getById(id) {
         const sql = `
-        SELECT subscription_id, guild_id, user_id, name
-        FROM gyms
+        SELECT guild_id, user_id, name
+        FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -80,7 +76,6 @@ class Gym {
         if (results && results.length > 0) {
             const result = results[0];
             return new Gym(
-                result.subscription_id,
                 result.guild_id,
                 result.user_id,
                 result.name
@@ -91,7 +86,7 @@ class Gym {
 
     static async delete(guildId, userId, name) {
         const sql = `
-        DELETE FROM gyms
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ? AND name = ?
         `;
         const args = [guildId, userId, name];
@@ -101,7 +96,7 @@ class Gym {
 
     static async deleteById(id) {
         const sql = `
-        DELETE FROM gyms
+        DELETE FROM wdr_subscriptions
         WHERE id = ?
         `;
         const args = [id];
@@ -111,7 +106,7 @@ class Gym {
 
     static async deleteAll(guildId, userId) {
         const sql = `
-        DELETE FROM gyms
+        DELETE FROM wdr_subscriptions
         WHERE guild_id = ? AND user_id = ?
         `;
         const args = [guildId, userId];

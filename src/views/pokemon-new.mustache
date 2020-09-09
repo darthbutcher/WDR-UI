@@ -30,17 +30,37 @@
                     <button id="select_rare" type="button" class="btn btn-success btn-sm">{{Select Rare}}</button>
                     <button id="select_ultra" type="button" class="btn btn-danger btn-sm">{{Select Ultra Rare}}</button>
                 </div>
-                <div class="form-group">
-                    {{Form}}
-                    <input type="text" class="form-control" name="form" value="" placeholder="i.e. Sunny">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{Form}}
+                             <input type="text" class="form-control" name="form" value="" placeholder="i.e. Sunny">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                             {{Gender}}
+                            <select name="gender" class="custom-select" required>
+                                {{#genders}}
+                                <option value="{{id}}">{{name}}</option>
+                                {{/genders}}
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    {{IV}}
-                    <input type="text" class="form-control" name="iv" value="" placeholder="i.e. 100">
-                </div>
-                <div class="form-group">
-                    {{IV List}}
-                    <textarea class="form-control" name="iv_list" value="" placeholder="i.e. 0/15/14&#10;0/15/15&#10;1/15/15" rows="5"></textarea>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{Minimum IV}}
+                             <input type="text" class="form-control" name="min_iv" value="" placeholder="i.e. 0">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                           {{Maximum IV}}
+                            <input type="text" class="form-control" name="max_iv" value="" placeholder="i.e. 100">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -56,14 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    {{Gender}}
-                    <select name="gender" class="custom-select" required>
-                        {{#genders}}
-                        <option value="{{id}}">{{name}}</option>
-                        {{/genders}}
-                    </select>
-                </div>
+                
                 <div class="form-group">
                     {{City}}
                     <select name="city" class="custom-select" multiple required>
