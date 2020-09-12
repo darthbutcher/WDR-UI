@@ -64,13 +64,13 @@ class Pokemon {
         return null;
     }
 
-    static async getByPokemon(guildId, userId, pokemonId, form) {
+    static async getByPokemon(guildId, userId, pokemonId) {
         const sql = `
         SELECT guild_id, user_id, pokemon_id, form, min_cp, min_iv, max_iv, min_lvl, max_lvl, gender, geotype
         FROM wdr_subscriptions
-        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND form = ? AND sub_type = 'pokemon'
+        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND sub_type = 'pokemon'
         `;
-        const args = [guildId, userId, pokemonId, form];
+        const args = [guildId, userId, pokemonId];
         const results = await db.query(sql, args);
         if (results && results.length > 0) {
             const result = results[0];
@@ -89,6 +89,25 @@ class Pokemon {
             );
         }
         return null;
+    }
+
+    static async deleteByPokemonId(guildId, userId, pokemonId) {
+        const sql = `
+        DELETE FROM wdr_subscriptions
+        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? 
+        `;
+        const args = [guildId, userId, pokemonId];
+        const results = await db.query(sql, args);
+        if (results && results.length > 0) {
+            const result = results[0];
+            return new Pokemon(
+                result.guild_id,
+                result.user_id,
+                result.pokemon_id
+                );
+    
+        return result.affectedRows === 1;
+        }
     }
 
     static async deleteAll(guildId, userId) {

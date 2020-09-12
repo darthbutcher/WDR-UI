@@ -48,9 +48,9 @@ router.post('/server/:guild_id/user/:user_id', async (req, res) => {
                         : 'Female Only';
                 pkmn.gender_name = pkmn.gender === '*' ? 'All' : pkmn.gender;
                 pkmn.buttons = `
-                <a href='/pokemon/edit/${pkmn.id}'><button type='button'class='btn btn-sm btn-primary'>Edit</button></a>
+                <a href='/pokemon/edit/${pkmn.pokemon_id}'><button type='button'class='btn btn-sm btn-primary'>Edit</button></a>
                 &nbsp;
-                <a href='/pokemon/delete/${pkmn.id}'><button type='button'class='btn btn-sm btn-danger'>Delete</button></a>
+                <a href='/pokemon/delete/${pkmn.pokemon_id}'><button type='button'class='btn btn-sm btn-danger'>Delete</button></a>
                 `;
             });
         }
@@ -233,17 +233,20 @@ router.post('/pokemon/edit/:id', async (req, res) => {
     res.redirect('/pokemon');
 });
 
-router.post('/pokemon/delete/:id', async (req, res) => {
-    const id = req.params.id;
-    const exists = await Pokemon.getById(id);
+router.post('/pokemon/delete/:pokemon_id', async (req, res) => {
+    const pokemon_id = req.params.pokemon_id;
+    const { guild_id } = req.body;
+    const user_id = defaultData.user_id;
+    const exists = await Pokemon.getByPokemon(guild_id, user_id, pokemon_id);
     if (exists) {
-        const result = await Pokemon.deleteById(id);
+        const result = await Pokemon.deleteByPokemonId(guild_id, user_id, pokemon_id);
         if (result) {
             // Success
-            console.log('Pokemon subscription', id, 'deleted successfully.');
+            console.log('Pokemon subscription', pokemon_id, 'deleted successfully.');
         }
     } else {
         // Does not exist
+        console.log ('Pokemon subscription',pokemon_id, 'does not exist.')
     }
     res.redirect('/pokemon');
 });

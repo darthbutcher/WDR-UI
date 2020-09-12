@@ -82,7 +82,7 @@ const getPokemonSubscriptions = async (guildId, userId) => {
     const results = await db.query(sql, args);
     if (results) {
         results.forEach(result => {
-            result.name = locale.getPokemonName(result.pokemon_id) || 'All';
+            result.name = locale.getPokemonName(result.pokemon_id);
             result.cp = `${result.min_cp}-4096`;
             result.iv_list = JSON.parse(result.iv_list || '[]');
             result.lvl = `${result.min_lvl}-${result.max_lvl}`;

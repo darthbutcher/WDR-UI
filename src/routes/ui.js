@@ -74,10 +74,10 @@ router.get('/pokemon/edit/:id', async (req, res) => {
     res.render('pokemon-edit', data);
 });
 
-router.get('/pokemon/delete/:id', (req, res) => {
+router.get('/pokemon/delete/:pokemon_id', (req, res) => {
     const data = defaultData;
     data.servers = validateRoles(req, res);
-    data.id = req.params.id;
+    data.pokemon_id = req.params.pokemon_id;
     res.render('pokemon-delete', data);
 });
 
