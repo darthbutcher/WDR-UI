@@ -127,16 +127,16 @@ class Pokemon {
         WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND sub_type = 'pokemon'
         `;
         const args = [
-            guild_id,
-            user_id,
-            pokemon_id,
             form,
             min_iv,
             max_iv,
             min_lvl,
             max_lvl,
             gender,
-            geotype
+            geotype,
+            guild_id,
+            user_id,
+            pokemon_id
         ];
         const result = await db.query(sql, args);
         return result.affectedRows === 1;
