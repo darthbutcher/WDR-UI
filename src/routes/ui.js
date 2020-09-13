@@ -13,6 +13,7 @@ const Quest = require('../models/quest.js');
 const Invasion = require('../models/invasion.js');
 const utils = require('../services/utils.js');
 
+let app = express()
 
 router.get(['/', '/index'], async (req, res) => {
     const data = defaultData;
@@ -48,29 +49,23 @@ router.get('/pokemon/new', (req, res) => {
     res.render('pokemon-new', data);
 });
 
-router.get('/pokemon/edit/:id', async (req, res) => {
+router.get('/pokemon/edit/', async (req, res) => {
     const data = defaultData;
     data.servers = validateRoles(req, res);
-    const id = req.params.id;
-    data.id = id;
-    const pokemon = await Pokemon.getById(id);
+    const pokemon_id = req.query.pokemon_id;
+    const guild_id = req.query.guild_id;
+    const user_id = defaultData.user_id;
+    data.pokemon_id = pokemon_id;
+    const pokemon = await Pokemon.getByPokemon(guild_id, user_id, pokemon_id);
     data.pokemon = map.getPokemonNameIdsList();
-    data.pokemon.forEach(pkmn => {
-        pkmn.selected = parseInt(pkmn.id) === pokemon.pokemonId;
-    });
-    data.iv = pokemon.minIV;
-    data.iv_list = (pokemon.ivList || []).join('\n');
-    data.min_iv = pokemon.minIV;
-    data.max_iv = pokemon.maxIV;
-    data.min_lvl = pokemon.minLvl;
-    data.max_lvl = pokemon.maxLvl;
+    data.min_iv = pokemon.min_iv;
+    data.max_iv = pokemon.max_iv;
+    data.min_lvl = pokemon.min_lvl;
+    data.max_lvl = pokemon.max_lvl;
     data.genders.forEach(gender => {
         data.selected = gender.id === pokemon.gender;
     });
-    data.cities = map.buildCityList(req.session.guilds);
-    data.cities.forEach(city => {
-        city.selected = city.name === pokemon.city;
-    });
+    data.geotype = pokemon.geotype
     res.render('pokemon-edit', data);
 });
 

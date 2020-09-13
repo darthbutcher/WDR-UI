@@ -40,7 +40,6 @@ router.post('/server/:guild_id/user/:user_id', async (req, res) => {
         if (pokemon) {
             pokemon.forEach(pkmn => {
                 pkmn.name = `<img src='${utils.getPokemonIcon(pkmn.pokemon_id, pkmn.form)}' width='auto' height='32'>&nbsp;${pkmn.name}`;
-                pkmn.iv_list = (pkmn.iv_list || []).length;
                 pkmn.gender == '*'
                     ? 'All'
                     : pkmn.gender == 'm'
@@ -48,7 +47,7 @@ router.post('/server/:guild_id/user/:user_id', async (req, res) => {
                         : 'Female Only';
                 pkmn.gender_name = pkmn.gender === '*' ? 'All' : pkmn.gender;
                 pkmn.buttons = `
-                <a href='/pokemon/edit/${pkmn.pokemon_id}'><button type='button'class='btn btn-sm btn-primary'>Edit</button></a>
+                <a href='/pokemon/edit/?pokemon_id=${pkmn.pokemon_id}&guild_id=${guild_id}'><button type='button'class='btn btn-sm btn-primary'>Edit</button></a>
                 &nbsp;
                 <a href='/pokemon/delete/${pkmn.pokemon_id}'><button type='button'class='btn btn-sm btn-danger'>Delete</button></a>
                 `;
@@ -177,7 +176,7 @@ router.post('/pokemon/new', async (req, res) => {
                 form || 0,
                 min_iv || 0,
                 max_iv || 100,
-                min_lvl || 0,
+                min_lvl || 1,
                 max_lvl || 35,
                 gender || 0,
                 geotype
@@ -192,8 +191,7 @@ router.post('/pokemon/new', async (req, res) => {
     res.redirect('/pokemon');
 });
 
-router.post('/pokemon/edit/:id', async (req, res) => {
-    const id = req.params.id;
+router.post('/pokemon/edit/', async (req, res) => {
     const {
         guild_id,
         pokemon,
@@ -203,31 +201,28 @@ router.post('/pokemon/edit/:id', async (req, res) => {
         min_lvl,
         max_lvl,
         gender,
-        city
+        geotype
     } = req.body;
+    const pokemon_id = pokemon;
     const user_id = defaultData.user_id;
-    const pkmn = await Pokemon.getById(id);
+    const pkmn = await Pokemon.getByPokemon(guild_id, user_id, pokemon_id);
     // TODO: Check if pokemon is rare (Unown, Azelf, etc), set IV value to 0.
     if (pkmn) {
         const result = await Pokemon.save(
-            id,
             guild_id,
             user_id,
-            pokemon,
-            form,
-            0,
-            isUltraRarePokemon(pokemon) ? 0 : iv || 0,
-            iv_list ? iv_list.split('\n') : [],
+            pokemon_id,
+            form || 0,
             min_iv || 0,
             max_iv || 100,
-            min_lvl || 0,
+            min_lvl || 1,
             max_lvl || 35,
             gender || 0,
-            city
+            geotype
         );
         if (result) {
             // Success
-            console.log('Pokemon subscription', id, 'updated successfully.');
+            console.log('Pokemon subscription', pokemon_id, 'updated successfully.');
         }
     }
     res.redirect('/pokemon');

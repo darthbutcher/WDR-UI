@@ -6,49 +6,71 @@
         <h1 align="center" id="header">{{Edit Pokemon Subscription}} {{id}}</h1>
         <br>
         <div class="w-75" style="float: none; margin: 0 auto;">
-            <form action="/api/pokemon/edit/{{id}}" method="post">
+            <form action="/api/pokemon/edit/" method="post">
                 <div class="form-group">
                     {{Pokemon}}
                     <select name="pokemon" class="custom-select" required>
                         <option value="" selected disabled hidden>{{Choose a Pokemon}}</option>
                         {{#pokemon}}
-                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                        <option value="{{pokemon_id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
                         {{/pokemon}}
                     </select>
                 </div>
-                <div class="form-group">
-                    {{Form}}
-                    <input type="text" class="form-control" name="form" value="{{form}}" placeholder="i.e. Sunny">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{Form}}
+                             <input type="text" class="form-control" name="form" value="" placeholder="i.e. Sunny">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                             {{Gender}}
+                            <select name="gender" class="custom-select" required>
+                                {{#genders}}
+                                <option value="{{id}}">{{name}}</option>
+                                {{/genders}}
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    {{IV}}
-                    <input type="text" class="form-control" name="iv" value="{{iv}}" placeholder="i.e. 100">
-                </div>
-                <div class="form-group">
-                    {{IV List}}
-                    <textarea class="form-control" name="iv_list" placeholder="i.e. 0/15/14&#10;0/15/15&#10;1/15/15" rows="5">{{iv_list}}</textarea>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            {{Minimum IV}}
+                             <input type="text" class="form-control" name="min_iv" value="" placeholder="i.e. 0">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                           {{Maximum IV}}
+                            <input type="text" class="form-control" name="max_iv" value="" placeholder="i.e. 100">
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
                             {{Minimum Level}}
-                            <input type="text" class="form-control" name="min_lvl" value="{{min_lvl}}" placeholder="i.e. 0">
+                            <input type="text" class="form-control" name="min_lvl" value="" placeholder="i.e. 0">
                         </div>
                     </div>
                     <div class="col">
                         <div class="form-group">
                             {{Maximum Level}}
-                            <input type="text" class="form-control" name="max_lvl" value="{{max_lvl}}" placeholder="i.e. 35">
+                            <input type="text" class="form-control" name="max_lvl" value="" placeholder="i.e. 35">
                         </div>
                     </div>
                 </div>
+                <div class="row">
                 <div class="form-group">
-                    {{Gender}}
-                    <select name="gender" class="custom-select" required>
-                        {{#genders}}
-                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
-                        {{/genders}}
-                    </select>
+                             {{Geotype}}
+                            <select name="geotype" class="custom-select" required>
+                                {{#locationselect}}
+                                <option value="{{id}}">{{name}}</option>
+                                {{/locationselect}}
+                            </select>
+                        </div>
                 </div>
                 <div class="form-group">
                     {{City}}
@@ -65,7 +87,7 @@
                 <button type="submit" class="btn btn-primary">{{Save}}</button>
                 <br>
             </form>
-            <form action="/api/pokemon/delete/{{id}}" method="post">
+            <form action="/api/pokemon/delete/{{pokemon_id}}" method="post">
                 <button type="submit" class="btn btn-danger" onclick="return confirm('{{Are you sure that you want to delete pokemon subscription}} {{id}}?');">{{Delete}}</button>
             </form>
         </div>

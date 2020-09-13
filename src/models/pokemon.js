@@ -120,24 +120,23 @@ class Pokemon {
         return result.affectedRows > 0;
     }
 
-    static async save(guildId, userId, pokemonId, form, minCP, minIV, ivList, minLvl, maxLvl, gender, city) {
+    static async save(guild_id, user_id, pokemon_id, form, min_iv, max_iv, min_lvl, max_lvl, gender, geotype) {
         const sql = `
         UPDATE wdr_subscriptions
-        SET pokemon_id = ?, form = ?, min_cp = ?, min_iv = ?, iv_list = ?, min_lvl = ?, max_lvl = ?, gender = ?, city = ?
-        WHERE guild_id = ? AND user_id = ?
+        SET form = ?, min_iv = ?, max_iv = ?, min_lvl = ?, max_lvl = ?, gender = ?, geotype = ?
+        WHERE guild_id = ? AND user_id = ? AND pokemon_id = ? AND sub_type = 'pokemon'
         `;
         const args = [
-            pokemonId,
+            guild_id,
+            user_id,
+            pokemon_id,
             form,
-            minCP,
-            minIV,
-            JSON.stringify(ivList),
-            minLvl,
-            maxLvl,
+            min_iv,
+            max_iv,
+            min_lvl,
+            max_lvl,
             gender,
-            city,
-            guildId,
-            userId
+            geotype
         ];
         const result = await db.query(sql, args);
         return result.affectedRows === 1;
